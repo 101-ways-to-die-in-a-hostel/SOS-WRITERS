@@ -1,0 +1,110 @@
+name: Validate Manuscript
+
+on:
+  pull_request:
+    paths:
+      - 'chapters/**'
+      - 'drafts/**'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check chapter structure
+        id: structure
+        run: |
+          echo "## Manuscript Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          ERRORS=0
+          WARNINGS=0
+
+          # Check for chapters directory
+          if [ ! -d "chapters" ]; then
+            echo "⚠️ No chapters directory found" >> $GITHUB_STEP_SUMMARY
+            WARNINGS=$((WARNINGS + 1))
+          fi
+
+          # Check each chapter file
+          if [ -d "chapters" ]; then
+            echo "### Chapter Analysis" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Chapter | Words | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|---------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+            for file in $(find chapters -name "*.md" | sort); do
+              WORDS=$(wc -w < "$file")
+              FILENAME=$(basename "$file")
+
+              if [ $WORDS -lt 4000 ]; then
+                STATUS="⚠️ Short (<4k)"
+                WARNINGS=$((WARNINGS + 1))
+              elif [ $WORDS -gt 7000 ]; then
+                STATUS="⚠️ Long (>7k)"
+                WARNINGS=$((WARNINGS + 1))
+              else
+                STATUS="✅ Good"
+              fi
+
+              echo "| $FILENAME | $WORDS | $STATUS |" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+
+      - name: Check for common issues
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Common Issues Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for TODO/FIXME
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX" chapters/ 2>/dev/null | wc -l || echo 0)
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "⚠️ Found $TODO_COUNT TODO/FIXME comments" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No TODO/FIXME comments" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check for placeholder text
+          PLACEHOLDER_COUNT=$(grep -r "\[.*\]" chapters/ 2>/dev/null | grep -v "^\[" | wc -l || echo 0)
+          if [ "$PLACEHOLDER_COUNT" -gt 10 ]; then
+            echo "⚠️ Found $PLACEHOLDER_COUNT potential placeholders [LIKE_THIS]" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Few/no placeholders detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check for repeated words
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL_WORDS=$(find chapters -name "*.md" -exec cat {} \; 2>/dev/null | wc -w || echo 0)
+          TOTAL_FILES=$(find chapters -name "*.md" 2>/dev/null | wc -l || echo 0)
+
+          echo "- Total chapters: $TOTAL_FILES" >> $GITHUB_STEP_SUMMARY
+          echo "- Total words: $TOTAL_WORDS" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the step summary
+            const summary = process.env.GITHUB_STEP_SUMMARY || '';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## 📚 Manuscript Validation\n\nSee the Actions tab for detailed report.'
+            });

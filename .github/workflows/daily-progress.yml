@@ -1,0 +1,98 @@
+name: Daily Progress Report
+
+on:
+  schedule:
+    # Run at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git log
+
+      - name: Calculate progress
+        run: |
+          # Get today's date
+          TODAY=$(date +%Y-%m-%d)
+          YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
+          WEEK_AGO=$(date -d "7 days ago" +%Y-%m-%d)
+
+          # Count current words
+          CURRENT_WORDS=$(find chapters drafts -name "*.md" -exec cat {} \; 2>/dev/null | wc -w || echo 0)
+
+          # Get words from yesterday's commit (if exists)
+          YESTERDAY_WORDS=$(git show HEAD~1:chapters/*.md 2>/dev/null | wc -w || echo $CURRENT_WORDS)
+
+          # Calculate change
+          WORDS_TODAY=$((CURRENT_WORDS - YESTERDAY_WORDS))
+
+          # Create report
+          echo "## 📊 Daily Progress Report - $TODAY" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Word Count" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Current Total | $CURRENT_WORDS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Written Today | $WORDS_TODAY |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get recent commits
+          echo "### Recent Activity" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          git log --oneline --since="$WEEK_AGO" --pretty=format:"%h %s (%ar)" | head -10 >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          # Files changed today
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Files Changed (Last 24h)" >> $GITHUB_STEP_SUMMARY
+          git diff --stat --since="$YESTERDAY" HEAD -- chapters/ drafts/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "No changes in last 24 hours" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check milestones
+        run: |
+          WORDS=$(find chapters drafts -name "*.md" -exec cat {} \; 2>/dev/null | wc -w || echo 0)
+          TARGET=250000
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Milestones" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for milestone in 25000 50000 75000 100000 125000 150000 175000 200000 225000 250000; do
+            if [ $WORDS -ge $milestone ]; then
+              echo "- [x] $milestone words" >> $GITHUB_STEP_SUMMARY
+            else
+              REMAINING=$((milestone - WORDS))
+              echo "- [ ] $milestone words ($REMAINING to go)" >> $GITHUB_STEP_SUMMARY
+              break
+            fi
+          done
+
+      - name: Calculate pace
+        run: |
+          WORDS=$(find chapters drafts -name "*.md" -exec cat {} \; 2>/dev/null | wc -w || echo 0)
+          TARGET=250000
+          REMAINING=$((TARGET - WORDS))
+
+          # Get first commit date
+          FIRST_COMMIT=$(git log --reverse --format=%cs | head -1)
+          DAYS_ELAPSED=$(( ($(date +%s) - $(date -d "$FIRST_COMMIT" +%s)) / 86400 ))
+
+          if [ $DAYS_ELAPSED -gt 0 ]; then
+            WORDS_PER_DAY=$((WORDS / DAYS_ELAPSED))
+            if [ $WORDS_PER_DAY -gt 0 ]; then
+              DAYS_TO_FINISH=$((REMAINING / WORDS_PER_DAY))
+
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Pace Analysis" >> $GITHUB_STEP_SUMMARY
+              echo "- Days writing: $DAYS_ELAPSED" >> $GITHUB_STEP_SUMMARY
+              echo "- Average words/day: $WORDS_PER_DAY" >> $GITHUB_STEP_SUMMARY
+              echo "- Words remaining: $REMAINING" >> $GITHUB_STEP_SUMMARY
+              echo "- Days to finish at current pace: $DAYS_TO_FINISH" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi

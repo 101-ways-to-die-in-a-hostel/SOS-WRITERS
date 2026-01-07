@@ -1,0 +1,161 @@
+name: Compile Manuscript
+
+on:
+  workflow_dispatch:
+    inputs:
+      format:
+        description: 'Output format'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - markdown
+          - docx
+          - epub
+          - pdf
+      include_drafts:
+        description: 'Include draft chapters'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+          # For PDF, also need LaTeX
+          if [ "${{ inputs.format }}" = "pdf" ] || [ "${{ inputs.format }}" = "all" ]; then
+            sudo apt-get install -y texlive-xetex texlive-fonts-recommended
+          fi
+
+      - name: Prepare manuscript
+        run: |
+          mkdir -p output
+
+          # Create combined markdown file
+          echo "# Manuscript" > output/manuscript.md
+          echo "" >> output/manuscript.md
+          echo "Compiled: $(date)" >> output/manuscript.md
+          echo "" >> output/manuscript.md
+          echo "---" >> output/manuscript.md
+          echo "" >> output/manuscript.md
+
+          # Add front matter if exists
+          if [ -f "front-matter/title.md" ]; then
+            cat front-matter/title.md >> output/manuscript.md
+            echo "" >> output/manuscript.md
+          fi
+
+          # Add chapters in order
+          if [ -d "chapters" ]; then
+            for part in chapters/part-*/; do
+              if [ -d "$part" ]; then
+                echo "## $(basename $part)" >> output/manuscript.md
+                echo "" >> output/manuscript.md
+                for chapter in $(ls "$part"*.md 2>/dev/null | sort); do
+                  cat "$chapter" >> output/manuscript.md
+                  echo "" >> output/manuscript.md
+                  echo "---" >> output/manuscript.md
+                  echo "" >> output/manuscript.md
+                done
+              fi
+            done
+
+            # Or if flat structure
+            for chapter in $(ls chapters/*.md 2>/dev/null | sort); do
+              cat "$chapter" >> output/manuscript.md
+              echo "" >> output/manuscript.md
+              echo "---" >> output/manuscript.md
+              echo "" >> output/manuscript.md
+            done
+          fi
+
+          # Optionally add drafts
+          if [ "${{ inputs.include_drafts }}" = "true" ] && [ -d "drafts" ]; then
+            echo "# DRAFTS (Work in Progress)" >> output/manuscript.md
+            echo "" >> output/manuscript.md
+            for draft in drafts/*.md; do
+              if [ -f "$draft" ]; then
+                cat "$draft" >> output/manuscript.md
+                echo "" >> output/manuscript.md
+              fi
+            done
+          fi
+
+          # Add back matter if exists
+          if [ -f "back-matter/author.md" ]; then
+            echo "---" >> output/manuscript.md
+            echo "" >> output/manuscript.md
+            cat back-matter/author.md >> output/manuscript.md
+          fi
+
+          echo "Manuscript prepared!"
+          wc -w output/manuscript.md
+
+      - name: Convert to DOCX
+        if: inputs.format == 'docx' || inputs.format == 'all'
+        run: |
+          pandoc output/manuscript.md -o output/manuscript.docx \
+            --from markdown \
+            --to docx \
+            --toc \
+            --toc-depth=2
+
+      - name: Convert to EPUB
+        if: inputs.format == 'epub' || inputs.format == 'all'
+        run: |
+          # Create metadata file
+          cat > output/metadata.yaml << EOF
+          ---
+          title: "Book Title"
+          author: "Author Name"
+          language: en-US
+          ---
+          EOF
+
+          pandoc output/manuscript.md -o output/manuscript.epub \
+            --from markdown \
+            --to epub \
+            --toc \
+            --toc-depth=2 \
+            --metadata-file=output/metadata.yaml
+
+      - name: Convert to PDF
+        if: inputs.format == 'pdf' || inputs.format == 'all'
+        run: |
+          pandoc output/manuscript.md -o output/manuscript.pdf \
+            --from markdown \
+            --to pdf \
+            --pdf-engine=xelatex \
+            --toc \
+            --toc-depth=2 \
+            -V geometry:margin=1in
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript-${{ github.run_number }}
+          path: output/
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "## Manuscript Compiled" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          for file in output/*; do
+            SIZE=$(du -h "$file" | cut -f1)
+            echo "| $(basename $file) | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download from the Artifacts section above." >> $GITHUB_STEP_SUMMARY

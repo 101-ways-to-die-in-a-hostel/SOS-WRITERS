@@ -1,0 +1,95 @@
+name: Word Count Tracker
+
+on:
+  push:
+    paths:
+      - 'chapters/**'
+      - 'drafts/**'
+  workflow_dispatch:
+
+jobs:
+  count-words:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Count words in chapters
+        id: wordcount
+        run: |
+          # Count words in all markdown files in chapters/
+          CHAPTER_WORDS=0
+          if [ -d "chapters" ]; then
+            CHAPTER_WORDS=$(find chapters -name "*.md" -exec cat {} \; | wc -w)
+          fi
+
+          # Count words in drafts/
+          DRAFT_WORDS=0
+          if [ -d "drafts" ]; then
+            DRAFT_WORDS=$(find drafts -name "*.md" -exec cat {} \; | wc -w)
+          fi
+
+          TOTAL_WORDS=$((CHAPTER_WORDS + DRAFT_WORDS))
+
+          echo "chapter_words=$CHAPTER_WORDS" >> $GITHUB_OUTPUT
+          echo "draft_words=$DRAFT_WORDS" >> $GITHUB_OUTPUT
+          echo "total_words=$TOTAL_WORDS" >> $GITHUB_OUTPUT
+
+          echo "## Word Count Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Location | Words |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Chapters | $CHAPTER_WORDS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Drafts | $DRAFT_WORDS |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **$TOTAL_WORDS** |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Update README badge
+        run: |
+          WORDS=${{ steps.wordcount.outputs.total_words }}
+          TARGET=250000
+          PCT=$((WORDS * 100 / TARGET))
+
+          # Create badge URL
+          if [ $PCT -lt 25 ]; then
+            COLOR="red"
+          elif [ $PCT -lt 50 ]; then
+            COLOR="orange"
+          elif [ $PCT -lt 75 ]; then
+            COLOR="yellow"
+          else
+            COLOR="green"
+          fi
+
+          BADGE_URL="https://img.shields.io/badge/words-${WORDS}%2F${TARGET}-${COLOR}"
+
+          echo "Badge: $BADGE_URL"
+          echo "Progress: ${PCT}%"
+
+      - name: Create progress file
+        run: |
+          WORDS=${{ steps.wordcount.outputs.total_words }}
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          mkdir -p .github/data
+
+          # Append to history
+          echo "$DATE,$WORDS" >> .github/data/word-count-history.csv
+
+          # Create current stats
+          cat > .github/data/word-count.json << EOF
+          {
+            "total": $WORDS,
+            "chapters": ${{ steps.wordcount.outputs.chapter_words }},
+            "drafts": ${{ steps.wordcount.outputs.draft_words }},
+            "updated": "$DATE"
+          }
+          EOF
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/data/ || true
+          git diff --staged --quiet || git commit -m "Update word count [skip ci]"
+          git push || true
