@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS-WRITERS | Writer's Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">SOS-WRITERS</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="projects">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-label">Projects</span>
+                </a>
+                <a href="#" class="nav-item" data-page="writing">
+                    <span class="nav-icon">✍️</span>
+                    <span class="nav-label">Writing</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-page="sales">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-label">Sales</span>
+                </a>
+                <a href="#" class="nav-item" data-page="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-label">Calendar</span>
+                </a>
+                <a href="#" class="nav-item" data-page="bible">
+                    <span class="nav-icon">📖</span>
+                    <span class="nav-label">Series Bible</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </a>
+                <a href="https://github.com/101-ways-to-die-in-a-hostel/SOS-WRITERS" target="_blank" class="nav-item">
+                    <span class="nav-icon">🔗</span>
+                    <span class="nav-label">GitHub</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search..." id="global-search">
+                    </div>
+                    <div class="user-menu">
+                        <span class="user-avatar">👤</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div class="page active" id="page-dashboard">
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon blue">📚</div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="kpi-projects">0</div>
+                            <div class="kpi-label">Active Projects</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon green">📝</div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="kpi-words">0</div>
+                            <div class="kpi-label">Total Words</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon orange">🔥</div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="kpi-streak">0</div>
+                            <div class="kpi-label">Day Streak</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon purple">💵</div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="kpi-revenue">$0</div>
+                            <div class="kpi-label">This Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Writing Progress -->
+                    <div class="card large">
+                        <div class="card-header">
+                            <h3>Writing Progress</h3>
+                            <select class="select-small" id="progress-period">
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="progress-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Active Projects -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Active Projects</h3>
+                            <a href="#" class="link-small" data-page="projects">View All</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="project-list" id="project-list">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Goals -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Today's Goals</h3>
+                            <button class="btn-icon" id="add-goal">+</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="goals-list" id="goals-list">
+                                <div class="goal-item">
+                                    <input type="checkbox" id="goal-1">
+                                    <label for="goal-1">Write 2,000 words</label>
+                                    <span class="goal-progress">1,234 / 2,000</span>
+                                </div>
+                                <div class="goal-item">
+                                    <input type="checkbox" id="goal-2">
+                                    <label for="goal-2">Edit Chapter 5</label>
+                                </div>
+                                <div class="goal-item completed">
+                                    <input type="checkbox" id="goal-3" checked>
+                                    <label for="goal-3">Outline Chapter 12</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Deadlines -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Upcoming Deadlines</h3>
+                            <a href="#" class="link-small" data-page="calendar">Calendar</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="deadline-list" id="deadline-list">
+                                <div class="deadline-item urgent">
+                                    <div class="deadline-date">
+                                        <span class="date-day">15</span>
+                                        <span class="date-month">Jan</span>
+                                    </div>
+                                    <div class="deadline-info">
+                                        <div class="deadline-title">Beta Draft Due</div>
+                                        <div class="deadline-project">Book 1: The Beginning</div>
+                                    </div>
+                                </div>
+                                <div class="deadline-item">
+                                    <div class="deadline-date">
+                                        <span class="date-day">28</span>
+                                        <span class="date-month">Jan</span>
+                                    </div>
+                                    <div class="deadline-info">
+                                        <div class="deadline-title">Cover Art Delivery</div>
+                                        <div class="deadline-project">Book 2: The Sequel</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <button class="action-btn" id="action-write">
+                                    <span class="action-icon">✍️</span>
+                                    <span class="action-label">Start Writing</span>
+                                </button>
+                                <button class="action-btn" id="action-new">
+                                    <span class="action-icon">📄</span>
+                                    <span class="action-label">New Project</span>
+                                </button>
+                                <button class="action-btn" id="action-compile">
+                                    <span class="action-icon">📦</span>
+                                    <span class="action-label">Compile</span>
+                                </button>
+                                <button class="action-btn" id="action-backup">
+                                    <span class="action-icon">☁️</span>
+                                    <span class="action-label">Backup</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="activity-list" id="activity-list">
+                                <div class="activity-item">
+                                    <span class="activity-icon">📝</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Wrote 1,234 words in <strong>Chapter 7</strong></div>
+                                        <div class="activity-time">2 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-icon">✅</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Completed <strong>Chapter 6</strong> edits</div>
+                                        <div class="activity-time">Yesterday</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-icon">🎯</span>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Hit 50,000 word milestone!</div>
+                                        <div class="activity-time">2 days ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Page -->
+            <div class="page" id="page-projects">
+                <div class="page-header">
+                    <h2>All Projects</h2>
+                    <button class="btn btn-primary" id="new-project-btn">+ New Project</button>
+                </div>
+                <div class="projects-grid" id="projects-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Writing Page -->
+            <div class="page" id="page-writing">
+                <div class="page-header">
+                    <h2>Writing Session</h2>
+                    <div class="session-stats">
+                        <span class="stat"><strong id="session-words">0</strong> words</span>
+                        <span class="stat"><strong id="session-time">00:00</strong> time</span>
+                    </div>
+                </div>
+                <div class="writing-container">
+                    <div class="writing-sidebar">
+                        <h4>Outline</h4>
+                        <div class="chapter-list" id="chapter-outline">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="writing-main">
+                        <div class="editor-toolbar">
+                            <button class="tool-btn" title="Bold"><strong>B</strong></button>
+                            <button class="tool-btn" title="Italic"><em>I</em></button>
+                            <button class="tool-btn" title="Heading">H</button>
+                            <span class="toolbar-divider"></span>
+                            <button class="tool-btn" title="Focus Mode">🎯</button>
+                            <button class="tool-btn" title="Dark Mode">🌙</button>
+                        </div>
+                        <textarea id="editor" placeholder="Start writing..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page" id="page-analytics">
+                <div class="page-header">
+                    <h2>Writing Analytics</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="card full-width">
+                        <div class="card-header">
+                            <h3>Writing Calendar</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="calendar-heatmap" id="calendar-heatmap">
+                                <!-- Heatmap will be generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Best Writing Times</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="time-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Word Count by Project</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="project-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Page -->
+            <div class="page" id="page-sales">
+                <div class="page-header">
+                    <h2>Sales & Revenue</h2>
+                </div>
+                <div class="sales-kpis">
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="sales-total">$0</div>
+                        <div class="kpi-label">Total Revenue</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="sales-month">$0</div>
+                        <div class="kpi-label">This Month</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="sales-units">0</div>
+                        <div class="kpi-label">Units Sold</div>
+                    </div>
+                </div>
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3>Revenue Over Time</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Page -->
+            <div class="page" id="page-calendar">
+                <div class="page-header">
+                    <h2>Launch Calendar</h2>
+                </div>
+                <div class="calendar-container" id="calendar-container">
+                    <!-- Calendar will be generated by JS -->
+                </div>
+            </div>
+
+            <!-- Series Bible Page -->
+            <div class="page" id="page-bible">
+                <div class="page-header">
+                    <h2>Series Bible</h2>
+                    <div class="bible-tabs">
+                        <button class="tab-btn active" data-tab="characters">Characters</button>
+                        <button class="tab-btn" data-tab="locations">Locations</button>
+                        <button class="tab-btn" data-tab="timeline">Timeline</button>
+                    </div>
+                </div>
+                <div class="bible-content" id="bible-content">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="page-settings">
+                <div class="page-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h3>Writing Goals</h3>
+                        <div class="setting-item">
+                            <label>Daily Word Goal</label>
+                            <input type="number" value="2000" id="daily-goal">
+                        </div>
+                        <div class="setting-item">
+                            <label>Weekly Word Goal</label>
+                            <input type="number" value="10000" id="weekly-goal">
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <label>Theme</label>
+                            <select id="theme-select">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="auto">System</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Data</h3>
+                        <button class="btn btn-secondary" id="export-data">Export All Data</button>
+                        <button class="btn btn-secondary" id="import-data">Import Data</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
