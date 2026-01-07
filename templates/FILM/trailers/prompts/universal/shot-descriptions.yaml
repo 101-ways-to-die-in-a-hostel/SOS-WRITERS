@@ -1,0 +1,241 @@
+# Universal Shot Descriptions for AI Video Generation
+# Book: #[XXX] - [TITLE]
+# Slug: [book-slug]
+#
+# This file contains platform-agnostic shot descriptions.
+# Use the platform-specific converters to generate prompts for:
+# - Runway ML (Gen-3 Alpha)
+# - Pika Labs
+# - OpenAI Sora
+# - Kling AI
+# - Luma Dream Machine
+
+metadata:
+  book_number: "[XXX]"
+  book_title: "[TITLE]"
+  book_slug: "[book-slug]"
+  death_type: "[death-mechanism]"
+  location_city: "[City, Country]"
+  location_hostel: "[Hostel Name]"
+  victim_name: "[Name]"
+  victim_appearance: "[Age], [gender], [ethnicity], [hair], [clothing]"
+  time_of_day: "night"  # day, night, dusk, dawn
+  weather: "rainy"      # clear, rainy, foggy, stormy
+  visual_style: "cinematic horror"
+  color_palette: "dark, desaturated, neon accents"
+
+shots:
+  - id: "shot-01"
+    name: "establishing_exterior"
+    duration_seconds: 3
+    shot_type: "wide"
+    camera_movement: "slow push in"
+    description: |
+      Exterior wide shot of a rundown hostel at night.
+      Rain falling, neon sign flickering "[Hostel Name]".
+      Empty street, puddles reflecting colored lights.
+      Ominous atmosphere, something feels wrong.
+    visual_elements:
+      - "old building facade"
+      - "flickering neon sign"
+      - "rain and wet streets"
+      - "dim street lights"
+      - "no people visible"
+    mood: "isolated, foreboding"
+    reference_films:
+      - "Hostel (2005) - opening shots"
+      - "Se7en (1995) - rain aesthetic"
+
+  - id: "shot-02"
+    name: "victim_arrival"
+    duration_seconds: 3
+    shot_type: "medium"
+    camera_movement: "static, slight handheld"
+    description: |
+      [Victim name] arrives at the hostel entrance.
+      Backpack on shoulders, looking up at the building.
+      Expression: tired but hopeful, unaware of danger.
+      Rain dripping, they hesitate before entering.
+    subject:
+      appearance: "[victim_appearance]"
+      expression: "weary optimism"
+      action: "looking up at building, about to enter"
+    visual_elements:
+      - "backpacker with travel gear"
+      - "hostel entrance in background"
+      - "rain falling on subject"
+    mood: "false hope, dramatic irony"
+
+  - id: "shot-03"
+    name: "warning_sign"
+    duration_seconds: 4
+    shot_type: "close-up"
+    camera_movement: "slow zoom"
+    description: |
+      Close-up of the first warning sign related to [death_type].
+      [Specific detail: e.g., frayed electrical wire, gas meter, crack in wall]
+      The victim's hand or body passes through frame, ignoring it.
+      Focus pulls from warning to victim's oblivious face.
+    visual_elements:
+      - "[death-specific warning element]"
+      - "subtle danger cues"
+      - "victim ignoring danger"
+    mood: "dread, foreshadowing"
+    death_foreshadowing: true
+
+  - id: "shot-04"
+    name: "pov_entering"
+    duration_seconds: 3
+    shot_type: "POV"
+    camera_movement: "walking forward, slight sway"
+    description: |
+      First-person perspective walking into the hostel.
+      Dimly lit corridor, other travelers in background.
+      Something feels slightly off - lighting, sounds, atmosphere.
+      Moving toward the victim's assigned room/bed.
+    visual_elements:
+      - "narrow hostel corridor"
+      - "dim flickering lights"
+      - "glimpses of other travelers"
+      - "room numbers on doors"
+    mood: "unease, point of no return"
+
+  - id: "shot-05"
+    name: "warning_montage"
+    duration_seconds: 4
+    shot_type: "quick cuts"
+    camera_movement: "various - snap zooms, whip pans"
+    description: |
+      Rapid montage of 3-4 warning signs (0.75-1s each):
+      1. [Warning element 1]
+      2. [Warning element 2]
+      3. [Warning element 3]
+      4. [Staff member's knowing glance]
+      Each shot punctuated by sound design hit.
+    sub_shots:
+      - "[First warning detail]"
+      - "[Second warning detail]"
+      - "[Third warning detail]"
+      - "hostel staff with suspicious expression"
+    mood: "escalating dread"
+    editing_note: "fast cuts, 0.75s each, music stings"
+
+  - id: "shot-06"
+    name: "realization"
+    duration_seconds: 4
+    shot_type: "medium close-up"
+    camera_movement: "slow dolly in"
+    description: |
+      [Victim name]'s face as they realize something is wrong.
+      Expression shifts from confusion to dawning horror.
+      Lighting changes - shadows creep in, color drains.
+      They look directly at camera for a beat.
+    subject:
+      appearance: "[victim_appearance]"
+      expression: "dawning horror, realization"
+      action: "face changing from confusion to fear"
+    visual_elements:
+      - "face in dramatic lighting"
+      - "shadows moving across features"
+      - "eyes widening"
+    mood: "terror, too late"
+
+  - id: "shot-07"
+    name: "death_tease"
+    duration_seconds: 3
+    shot_type: "close-up / detail"
+    camera_movement: "slow reveal or snap zoom"
+    description: |
+      The death mechanism revealed or teased.
+      [Specific visual: e.g., sparking wire, gas flame, crumbling structure]
+      Do NOT show the actual death - just the imminent threat.
+      Cut to black at the moment of maximum tension.
+    visual_elements:
+      - "[death mechanism in detail]"
+      - "imminent danger made clear"
+      - "victim's hand/body at edge of frame"
+    mood: "maximum dread, cliffhanger"
+    death_foreshadowing: true
+    content_note: "Suggest danger, don't show gore"
+
+  - id: "shot-08"
+    name: "black_text"
+    duration_seconds: 3
+    shot_type: "title card"
+    camera_movement: "none"
+    description: |
+      Black screen with text appearing:
+      "BOOK [XXX]"
+      Followed by voice-over: "101 Ways to Die in a Hostel"
+    visual_elements:
+      - "black background"
+      - "white distressed text"
+      - "subtle texture/grain"
+    text_overlay: "BOOK [XXX]"
+    mood: "dread, anticipation"
+    generation_note: "Create as graphic, not AI video"
+
+  - id: "shot-09"
+    name: "title_card"
+    duration_seconds: 3
+    shot_type: "title card"
+    camera_movement: "none"
+    description: |
+      Series logo: "101 WAYS TO DIE IN A HOSTEL"
+      Book subtitle: "[SUBTITLE]"
+      Call to action: "AVAILABLE NOW"
+      Background: subtle animated texture or static hostel image
+    visual_elements:
+      - "series logo"
+      - "book subtitle"
+      - "release info"
+    mood: "resolution, call to action"
+    generation_note: "Create as motion graphic"
+
+# Platform-specific generation notes
+platform_notes:
+  runway:
+    model: "gen-3-alpha"
+    best_for:
+      - "shot-01: establishing shots"
+      - "shot-04: POV movement"
+      - "shot-06: emotional performance"
+    settings:
+      duration: "5s or 10s"
+      style_reference: "use reference images"
+
+  pika:
+    model: "1.0"
+    best_for:
+      - "shot-03: detail shots"
+      - "shot-05: stylized quick cuts"
+      - "shot-07: horror reveals"
+    settings:
+      motion_strength: 3
+      guidance_scale: 12
+
+  sora:
+    model: "sora"
+    best_for:
+      - "shot-02: human performance"
+      - "shot-06: facial expressions"
+      - "all shots: highest quality"
+    settings:
+      aspect_ratio: "16:9"
+      duration: "up to 60s"
+
+  kling:
+    model: "kling-1.5"
+    best_for:
+      - "shot-01: establishing wide"
+      - "shot-04: camera movement"
+    settings:
+      mode: "high quality"
+
+  luma:
+    model: "dream-machine"
+    best_for:
+      - "shot-05: dynamic movement"
+      - "shot-07: dramatic reveals"
+    settings:
+      enhance_prompt: true

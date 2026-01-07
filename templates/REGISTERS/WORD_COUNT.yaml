@@ -1,0 +1,38 @@
+# Word Count Register
+# Updated automatically by Writer Agent
+
+book:
+  number: "XXX"
+  slug: "book-slug"
+  target: 250000
+
+daily_log: []
+  # - date: "2026-01-06"
+  #   words_written: 5200
+  #   chapter: 1
+  #   cumulative: 5200
+
+weekly_summary: []
+  # - week: 1
+  #   start_date: "2026-01-06"
+  #   words_written: 35000
+  #   chapters_completed: 7
+  #   cumulative: 35000
+
+chapter_breakdown:
+  - chapter: 1
+    word_count: 0
+    status: "pending"
+  # ... chapters 2-50 follow same pattern
+
+totals:
+  current: 0
+  target: 250000
+  remaining: 250000
+  percentage: 0
+
+pace:
+  average_per_chapter: 0
+  estimated_completion: "TBD"
+
+last_updated: "2026-01-06"

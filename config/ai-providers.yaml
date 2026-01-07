@@ -1,0 +1,494 @@
+# ai-providers.yaml - Multi-AI Provider Configuration
+# Defines all supported AI providers, models, and failover priorities
+#
+# Copyright (c) 2024-2026 Jonathan Mitchell Anderson
+# See LEGAL/IP_CANON.md for terms.
+
+version: "1.0"
+updated: "2026-01-05"
+
+# Provider definitions with API details and rate limits
+providers:
+  anthropic:
+    name: "Anthropic (Claude)"
+    enabled: true
+    priority: 1  # Primary provider
+    api_base: "https://api.anthropic.com/v1"
+    key_env: "ANTHROPIC_API_KEY"
+    project_env: "ANTHROPIC_PROJECT_ID"
+    models:
+      - id: "claude-opus-4-5-20251101"
+        name: "Claude Opus 4.5"
+        tier: "flagship"
+        context_window: 200000
+        rate_limit_rpm: 50
+        rate_limit_tpm: 80000
+        cost_per_1k_input: 0.015
+        cost_per_1k_output: 0.075
+      - id: "claude-sonnet-4-20250514"
+        name: "Claude Sonnet 4"
+        tier: "balanced"
+        context_window: 200000
+        rate_limit_rpm: 100
+        rate_limit_tpm: 160000
+        cost_per_1k_input: 0.003
+        cost_per_1k_output: 0.015
+      - id: "claude-3-5-haiku-20241022"
+        name: "Claude 3.5 Haiku"
+        tier: "fast"
+        context_window: 200000
+        rate_limit_rpm: 200
+        rate_limit_tpm: 320000
+        cost_per_1k_input: 0.001
+        cost_per_1k_output: 0.005
+    provision:
+      create_project_url: "https://console.anthropic.com/settings/projects"
+      create_key_url: "https://console.anthropic.com/settings/keys"
+      api_method: "manual"  # No API for project creation yet
+    headers:
+      x-api-key: "${ANTHROPIC_API_KEY}"
+      anthropic-version: "2023-06-01"
+
+  openai:
+    name: "OpenAI (GPT)"
+    enabled: true
+    priority: 2
+    api_base: "https://api.openai.com/v1"
+    key_env: "OPENAI_API_KEY"
+    project_env: "OPENAI_PROJECT_ID"
+    org_env: "OPENAI_ORG_ID"
+    models:
+      - id: "gpt-4o"
+        name: "GPT-4o"
+        tier: "flagship"
+        context_window: 128000
+        rate_limit_rpm: 500
+        rate_limit_tpm: 800000
+        cost_per_1k_input: 0.005
+        cost_per_1k_output: 0.015
+      - id: "gpt-4o-mini"
+        name: "GPT-4o Mini"
+        tier: "fast"
+        context_window: 128000
+        rate_limit_rpm: 1000
+        rate_limit_tpm: 2000000
+        cost_per_1k_input: 0.00015
+        cost_per_1k_output: 0.0006
+      - id: "o1"
+        name: "o1 (Reasoning)"
+        tier: "reasoning"
+        context_window: 200000
+        rate_limit_rpm: 20
+        rate_limit_tpm: 100000
+        cost_per_1k_input: 0.015
+        cost_per_1k_output: 0.06
+      - id: "o1-mini"
+        name: "o1 Mini"
+        tier: "reasoning-fast"
+        context_window: 128000
+        rate_limit_rpm: 100
+        rate_limit_tpm: 200000
+        cost_per_1k_input: 0.003
+        cost_per_1k_output: 0.012
+    provision:
+      create_project_api: "https://api.openai.com/v1/organization/projects"
+      create_key_api: "https://api.openai.com/v1/organization/projects/{project_id}/api_keys"
+      api_method: "api"  # Can provision via API
+    headers:
+      Authorization: "Bearer ${OPENAI_API_KEY}"
+
+  google:
+    name: "Google (Gemini)"
+    enabled: true
+    priority: 3
+    api_base: "https://generativelanguage.googleapis.com/v1beta"
+    key_env: "GOOGLE_API_KEY"
+    project_env: "GOOGLE_CLOUD_PROJECT"
+    models:
+      - id: "gemini-2.0-flash"
+        name: "Gemini 2.0 Flash"
+        tier: "fast"
+        context_window: 1000000
+        rate_limit_rpm: 1500
+        rate_limit_tpm: 4000000
+        cost_per_1k_input: 0.0001
+        cost_per_1k_output: 0.0004
+      - id: "gemini-1.5-pro"
+        name: "Gemini 1.5 Pro"
+        tier: "flagship"
+        context_window: 2000000
+        rate_limit_rpm: 360
+        rate_limit_tpm: 4000000
+        cost_per_1k_input: 0.00125
+        cost_per_1k_output: 0.005
+      - id: "gemini-1.5-flash"
+        name: "Gemini 1.5 Flash"
+        tier: "balanced"
+        context_window: 1000000
+        rate_limit_rpm: 1500
+        rate_limit_tpm: 4000000
+        cost_per_1k_input: 0.000075
+        cost_per_1k_output: 0.0003
+    provision:
+      create_project_url: "https://console.cloud.google.com/projectcreate"
+      create_key_url: "https://aistudio.google.com/app/apikey"
+      api_method: "gcloud"  # Use gcloud CLI
+    headers:
+      x-goog-api-key: "${GOOGLE_API_KEY}"
+
+  alibaba:
+    name: "Alibaba (Qwen)"
+    enabled: true
+    priority: 4
+    api_base: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    key_env: "DASHSCOPE_API_KEY"
+    models:
+      - id: "qwen-max"
+        name: "Qwen Max"
+        tier: "flagship"
+        context_window: 32000
+        rate_limit_rpm: 300
+        rate_limit_tpm: 1000000
+        cost_per_1k_input: 0.004
+        cost_per_1k_output: 0.012
+      - id: "qwen-plus"
+        name: "Qwen Plus"
+        tier: "balanced"
+        context_window: 131072
+        rate_limit_rpm: 600
+        rate_limit_tpm: 2000000
+        cost_per_1k_input: 0.0008
+        cost_per_1k_output: 0.002
+      - id: "qwen-turbo"
+        name: "Qwen Turbo"
+        tier: "fast"
+        context_window: 131072
+        rate_limit_rpm: 1200
+        rate_limit_tpm: 4000000
+        cost_per_1k_input: 0.0003
+        cost_per_1k_output: 0.0006
+    provision:
+      create_key_url: "https://dashscope.console.aliyun.com/apiKey"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${DASHSCOPE_API_KEY}"
+
+  deepseek:
+    name: "DeepSeek"
+    enabled: true
+    priority: 5
+    api_base: "https://api.deepseek.com/v1"
+    key_env: "DEEPSEEK_API_KEY"
+    models:
+      - id: "deepseek-chat"
+        name: "DeepSeek V3"
+        tier: "flagship"
+        context_window: 64000
+        rate_limit_rpm: 500
+        rate_limit_tpm: 1000000
+        cost_per_1k_input: 0.00014
+        cost_per_1k_output: 0.00028
+      - id: "deepseek-reasoner"
+        name: "DeepSeek R1"
+        tier: "reasoning"
+        context_window: 64000
+        rate_limit_rpm: 100
+        rate_limit_tpm: 500000
+        cost_per_1k_input: 0.00055
+        cost_per_1k_output: 0.00219
+    provision:
+      create_key_url: "https://platform.deepseek.com/api_keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${DEEPSEEK_API_KEY}"
+
+  mistral:
+    name: "Mistral AI"
+    enabled: true
+    priority: 6
+    api_base: "https://api.mistral.ai/v1"
+    key_env: "MISTRAL_API_KEY"
+    models:
+      - id: "mistral-large-latest"
+        name: "Mistral Large"
+        tier: "flagship"
+        context_window: 128000
+        rate_limit_rpm: 300
+        rate_limit_tpm: 500000
+        cost_per_1k_input: 0.002
+        cost_per_1k_output: 0.006
+      - id: "mistral-small-latest"
+        name: "Mistral Small"
+        tier: "balanced"
+        context_window: 32000
+        rate_limit_rpm: 600
+        rate_limit_tpm: 1000000
+        cost_per_1k_input: 0.0002
+        cost_per_1k_output: 0.0006
+      - id: "codestral-latest"
+        name: "Codestral"
+        tier: "code"
+        context_window: 32000
+        rate_limit_rpm: 400
+        rate_limit_tpm: 800000
+        cost_per_1k_input: 0.0003
+        cost_per_1k_output: 0.0009
+    provision:
+      create_key_url: "https://console.mistral.ai/api-keys/"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${MISTRAL_API_KEY}"
+
+  groq:
+    name: "Groq (Fast Inference)"
+    enabled: true
+    priority: 7
+    api_base: "https://api.groq.com/openai/v1"
+    key_env: "GROQ_API_KEY"
+    models:
+      - id: "llama-3.3-70b-versatile"
+        name: "Llama 3.3 70B"
+        tier: "flagship"
+        context_window: 128000
+        rate_limit_rpm: 30
+        rate_limit_tpm: 100000
+        cost_per_1k_input: 0.00059
+        cost_per_1k_output: 0.00079
+      - id: "llama-3.1-8b-instant"
+        name: "Llama 3.1 8B"
+        tier: "fast"
+        context_window: 128000
+        rate_limit_rpm: 100
+        rate_limit_tpm: 200000
+        cost_per_1k_input: 0.00005
+        cost_per_1k_output: 0.00008
+      - id: "mixtral-8x7b-32768"
+        name: "Mixtral 8x7B"
+        tier: "balanced"
+        context_window: 32768
+        rate_limit_rpm: 60
+        rate_limit_tpm: 150000
+        cost_per_1k_input: 0.00024
+        cost_per_1k_output: 0.00024
+    provision:
+      create_key_url: "https://console.groq.com/keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${GROQ_API_KEY}"
+
+  together:
+    name: "Together AI"
+    enabled: true
+    priority: 8
+    api_base: "https://api.together.xyz/v1"
+    key_env: "TOGETHER_API_KEY"
+    models:
+      - id: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+        name: "Llama 3.3 70B Turbo"
+        tier: "flagship"
+        context_window: 131072
+        rate_limit_rpm: 600
+        rate_limit_tpm: 2000000
+        cost_per_1k_input: 0.00088
+        cost_per_1k_output: 0.00088
+      - id: "Qwen/Qwen2.5-72B-Instruct-Turbo"
+        name: "Qwen 2.5 72B Turbo"
+        tier: "flagship"
+        context_window: 32768
+        rate_limit_rpm: 600
+        rate_limit_tpm: 2000000
+        cost_per_1k_input: 0.0012
+        cost_per_1k_output: 0.0012
+      - id: "deepseek-ai/DeepSeek-R1"
+        name: "DeepSeek R1 (Together)"
+        tier: "reasoning"
+        context_window: 64000
+        rate_limit_rpm: 200
+        rate_limit_tpm: 1000000
+        cost_per_1k_input: 0.003
+        cost_per_1k_output: 0.007
+    provision:
+      create_key_url: "https://api.together.xyz/settings/api-keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${TOGETHER_API_KEY}"
+
+  xai:
+    name: "xAI (Grok)"
+    enabled: true
+    priority: 9
+    api_base: "https://api.x.ai/v1"
+    key_env: "XAI_API_KEY"
+    models:
+      - id: "grok-2-latest"
+        name: "Grok 2"
+        tier: "flagship"
+        context_window: 131072
+        rate_limit_rpm: 60
+        rate_limit_tpm: 200000
+        cost_per_1k_input: 0.002
+        cost_per_1k_output: 0.01
+      - id: "grok-2-vision-latest"
+        name: "Grok 2 Vision"
+        tier: "multimodal"
+        context_window: 32768
+        rate_limit_rpm: 60
+        rate_limit_tpm: 200000
+        cost_per_1k_input: 0.002
+        cost_per_1k_output: 0.01
+    provision:
+      create_key_url: "https://console.x.ai/api-keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${XAI_API_KEY}"
+
+  cohere:
+    name: "Cohere"
+    enabled: true
+    priority: 10
+    api_base: "https://api.cohere.ai/v1"
+    key_env: "COHERE_API_KEY"
+    models:
+      - id: "command-r-plus"
+        name: "Command R+"
+        tier: "flagship"
+        context_window: 128000
+        rate_limit_rpm: 100
+        rate_limit_tpm: 300000
+        cost_per_1k_input: 0.0025
+        cost_per_1k_output: 0.01
+      - id: "command-r"
+        name: "Command R"
+        tier: "balanced"
+        context_window: 128000
+        rate_limit_rpm: 200
+        rate_limit_tpm: 600000
+        cost_per_1k_input: 0.00015
+        cost_per_1k_output: 0.0006
+    provision:
+      create_key_url: "https://dashboard.cohere.com/api-keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${COHERE_API_KEY}"
+
+  perplexity:
+    name: "Perplexity (Search-Augmented)"
+    enabled: true
+    priority: 11
+    api_base: "https://api.perplexity.ai"
+    key_env: "PERPLEXITY_API_KEY"
+    models:
+      - id: "llama-3.1-sonar-large-128k-online"
+        name: "Sonar Large Online"
+        tier: "search"
+        context_window: 127072
+        rate_limit_rpm: 100
+        rate_limit_tpm: 200000
+        cost_per_1k_input: 0.001
+        cost_per_1k_output: 0.001
+      - id: "llama-3.1-sonar-small-128k-online"
+        name: "Sonar Small Online"
+        tier: "search-fast"
+        context_window: 127072
+        rate_limit_rpm: 200
+        rate_limit_tpm: 400000
+        cost_per_1k_input: 0.0002
+        cost_per_1k_output: 0.0002
+    provision:
+      create_key_url: "https://www.perplexity.ai/settings/api"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${PERPLEXITY_API_KEY}"
+
+  fireworks:
+    name: "Fireworks AI"
+    enabled: true
+    priority: 12
+    api_base: "https://api.fireworks.ai/inference/v1"
+    key_env: "FIREWORKS_API_KEY"
+    models:
+      - id: "accounts/fireworks/models/llama-v3p3-70b-instruct"
+        name: "Llama 3.3 70B"
+        tier: "flagship"
+        context_window: 131072
+        rate_limit_rpm: 600
+        rate_limit_tpm: 2000000
+        cost_per_1k_input: 0.0009
+        cost_per_1k_output: 0.0009
+      - id: "accounts/fireworks/models/deepseek-r1"
+        name: "DeepSeek R1 (Fireworks)"
+        tier: "reasoning"
+        context_window: 163840
+        rate_limit_rpm: 200
+        rate_limit_tpm: 1000000
+        cost_per_1k_input: 0.008
+        cost_per_1k_output: 0.008
+    provision:
+      create_key_url: "https://fireworks.ai/api-keys"
+      api_method: "manual"
+    headers:
+      Authorization: "Bearer ${FIREWORKS_API_KEY}"
+
+# Failover configuration
+failover:
+  enabled: true
+  max_retries: 3
+  retry_delay_ms: 1000
+  backoff_multiplier: 2
+
+  # Error codes that trigger failover
+  failover_on:
+    - 429  # Rate limited
+    - 503  # Service unavailable
+    - 502  # Bad gateway
+    - 500  # Internal server error
+    - "rate_limit_exceeded"
+    - "overloaded"
+    - "capacity"
+
+  # Model tier fallback order
+  tier_fallback:
+    flagship:
+      - anthropic:claude-opus-4-5-20251101
+      - openai:gpt-4o
+      - google:gemini-1.5-pro
+      - alibaba:qwen-max
+      - mistral:mistral-large-latest
+      - xai:grok-2-latest
+      - cohere:command-r-plus
+    balanced:
+      - anthropic:claude-sonnet-4-20250514
+      - google:gemini-1.5-flash
+      - alibaba:qwen-plus
+      - mistral:mistral-small-latest
+      - cohere:command-r
+    fast:
+      - anthropic:claude-3-5-haiku-20241022
+      - openai:gpt-4o-mini
+      - google:gemini-2.0-flash
+      - alibaba:qwen-turbo
+      - groq:llama-3.1-8b-instant
+      - deepseek:deepseek-chat
+    reasoning:
+      - openai:o1
+      - deepseek:deepseek-reasoner
+      - together:deepseek-ai/DeepSeek-R1
+      - fireworks:accounts/fireworks/models/deepseek-r1
+    code:
+      - mistral:codestral-latest
+      - deepseek:deepseek-chat
+      - anthropic:claude-sonnet-4-20250514
+
+# Cost tracking
+cost_tracking:
+  enabled: true
+  budget_alert_threshold: 100.00  # USD per day
+  budget_hard_limit: 500.00       # USD per day - stop all requests
+  log_file: "telemetry/ai-costs.jsonl"
+
+# Repository-specific overrides
+repo_overrides:
+  # Example: specific repo uses only certain providers
+  # "PresidentAnderson/critical-app":
+  #   allowed_providers: ["anthropic", "openai"]
+  #   preferred_tier: "flagship"

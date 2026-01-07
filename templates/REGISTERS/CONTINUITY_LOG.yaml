@@ -1,0 +1,77 @@
+# Continuity Log
+# Track character details, plot points, and foreshadowing for consistency
+
+book:
+  number: "XXX"
+  slug: "book-slug"
+  victim: "Victim Name"
+
+characters:
+  primary_victim:
+    name: ""
+    introduced_chapter: 1
+    key_traits: []
+    arc_notes: []
+
+  secondary_characters: []
+    # - name: "Character Name"
+    #   role: "role in story"
+    #   introduced_chapter: X
+    #   fate: "integrated/survives/dies"
+    #   notes: []
+
+  staff_integrated: []
+    # - name: "Staff Name"
+    #   role: "Receptionist"
+    #   revealed_chapter: X
+
+  @hostelreaper:
+    mentions: []
+    # - chapter: X
+    #   context: "what was mentioned"
+
+timeline:
+  day_1: []
+    # - chapter: 1
+    #   time: "Morning"
+    #   event: "Arrival"
+  # day_2, day_3, etc.
+
+foreshadowing:
+  planted: []
+    # - element: "Strange warmth in walls"
+    #   chapter_planted: 2
+    #   chapter_payoff: 38
+    #   status: "planted"  # planted | paid_off
+
+  red_herrings: []
+    # - element: "Suspicious backpacker"
+    #   chapter: 5
+    #   resolved: 12
+
+death_progression:
+  warning_signs: []
+    # - chapter: X
+    #   type: "subtle/obvious/explicit"
+    #   element: "description"
+    #   victim_rationalization: "how they dismiss it"
+
+locations_used:
+  - location: "Reception"
+    chapters: []
+  - location: "Victim's Room"
+    chapters: []
+  # etc.
+
+objects:
+  significant_items: []
+    # - item: "Password Card"
+    #   introduced: 3
+    #   significance: "Contains incantation"
+    #   last_mentioned: 38
+
+notes: []
+  # - chapter: X
+  #   note: "Need to reference this later"
+
+last_updated: "2026-01-06"

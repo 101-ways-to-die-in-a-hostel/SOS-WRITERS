@@ -1,0 +1,59 @@
+# Progress Tracker
+# Updated automatically by Writer Agent
+
+book:
+  number: "XXX"
+  slug: "book-slug"
+  title: "Book Title"
+  status: "DRAFTING"  # PLANNING | DRAFTING | REVISING | COMPLETE
+
+targets:
+  total_chapters: 50
+  total_words: 250000
+  words_per_chapter: 5000
+
+progress:
+  chapters_complete: 0
+  chapters_in_progress: 0
+  current_word_count: 0
+  percentage: 0
+
+parts:
+  setup:
+    chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    status: "pending"
+    word_count: 0
+  escalation:
+    chapters: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    status: "pending"
+    word_count: 0
+  crisis:
+    chapters: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+    status: "pending"
+    word_count: 0
+  climax:
+    chapters: [31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+    status: "pending"
+    word_count: 0
+  aftermath:
+    chapters: [41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+    status: "pending"
+    word_count: 0
+
+chapters:
+  - number: 1
+    title: "TBD"
+    status: "pending"  # pending | in_progress | complete
+    word_count: 0
+    file: "chapters/part-1-setup/chapter-01.md"
+  # ... chapters 2-50 follow same pattern
+
+milestones:
+  canon_complete: false
+  outline_complete: false
+  draft_complete: false
+  revision_complete: false
+  publication_ready: false
+
+last_updated: "2026-01-06"
+updated_by: "system"
